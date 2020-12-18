@@ -1,4 +1,4 @@
-# A collection of advanced AWS CLI commands and queries
+# Advanced AWS CLI usage examples
 
 This repo is a collection of hard won [AWS CLI](https://aws.amazon.com/cli/) commands that can be used as starting points for your own use cases.
 
