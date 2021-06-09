@@ -110,6 +110,16 @@ aws ec2 describe-security-groups --query 'SecurityGroups[?GroupName==`eks-cluste
 vpc-0dcbebaad295821ce
 ```
 
+### Query with shell variable
+
+Shell variables will automatically be escaped even if they're encapsulated in single quotes.
+
+```bash
+aws cloudformation list-exports \
+    --query "Exports[*]|[?Name=='eksctl-$CLUSTER-cluster::SharedNodeSecurityGroup'].Value" \
+    --output text
+```
+
 ### Nesting command output
 
 You often want to look up values for something that requires information from another command output.
@@ -126,7 +136,11 @@ Now you can simply plug in that command into a larger command like so.
 > If the correct subshell command was the _last_ command you ran you can use `$(!!)` as a shorthand for replacing `!!` for the last command you ran. You can see more advanced command history usage in my [mastering zsh workshop](https://github.com/rothgar/mastering-zsh/blob/master/docs/config/history.md#using-words-from-the-last-command)
 
 ```bash
-aws ecs describe-container-instances --container-instances $(aws ecs list-container-instances --cluster cftc --query 'containerInstanceArns[*]' --out text) --cluster cftc --query 'containerInstances[*].{status: status,id: ec2InstanceId,agent: versionInfo.agentVersion,docker: versionInfo.dockerVersion,tasks: runningTasksCount,arch: attributes[?name==`ecs.cpu-architecture`] | [0].value,cpu: remainingResources[?name==`CPU`] | [0].integerValue,memory: remainingResources[?name==`MEMORY`] | [0].integerValue,hostname: attributes[?name==`hostname`] | [0].value,datacenter: attributes[?name==`datacenter`] | [0].value}' --out table
+aws ecs describe-container-instances --container-instances $(aws ecs list-container-instances \
+  --cluster cftc --query 'containerInstanceArns[*]' \
+  --out text) --cluster cftc \
+  --query 'containerInstances[*].{status: status,id: ec2InstanceId,agent: versionInfo.agentVersion,docker: versionInfo.dockerVersion,tasks: runningTasksCount,arch: attributes[?name==`ecs.cpu-architecture`] | [0].value,cpu: remainingResources[?name==`CPU`] | [0].integerValue,memory: remainingResources[?name==`MEMORY`] | [0].integerValue,hostname: attributes[?name==`hostname`] | [0].value,datacenter: attributes[?name==`datacenter`] | [0].value}' \
+  --out table
 ```
 > example output
 ```bash
